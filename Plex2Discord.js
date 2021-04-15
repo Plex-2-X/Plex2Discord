@@ -5,7 +5,7 @@ var client = new Discord.Client();
 var Channel1 = client.channels.cache.get("811679133590355968");
 var Channel2 = client.channels.cache.get("814349208776998952");
 
-client.login('NDcxODY3MTQ3ODcwNzk3ODI0.W1kyhg.neoL-GbyNTXmIQaUs135oRBqm28'); //Bot ID here
+client.login(''); //Bot ID here
 
 client.once('ready', () => {
 	client.user.setActivity('Sitting Idle');
