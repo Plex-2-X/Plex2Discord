@@ -1,4 +1,4 @@
-Plex2Discord 
+Plex2Discord - DO NOT USE THE SCRIPTS FROM THIS BRANCH THEY ARE INCOMPLETE
 ===============	
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/mixerrules/Plex2Discord?style=plastic)  ![GitHub all releases](https://img.shields.io/github/downloads/mixerrules/Plex2Discord/total?label=Downloads&style=plastic)
 
