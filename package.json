@@ -1,13 +1,13 @@
 {
-  "name": "plextodiscord",
-  "version": "0.0.1",
+  "name": "Plex2Discord",
+  "version": "0.0.2",
   "description": "An app used to send info from my plex server to my discord's status channel",
-  "main": "index.js",
+  "main": "Plex2Discord.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Mixer (Jackson Tweet)",
-  "license": "ISC",
+  "author": "MIXERRULES",
+  "license": "MIT",
   "dependencies": {
     "busboy": "^0.3.1",
     "discord.js": "^12.5.1",
