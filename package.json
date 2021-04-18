@@ -1,6 +1,6 @@
 {
   "name": "Plex2Discord",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a simple Node.JS script that listens for for Plex webhook payloads then formats and forwards the payload content to a set Discord channel via a bot.",
   "main": "Plex2Discord.js",
   "scripts": {
