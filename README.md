@@ -10,11 +10,11 @@ Plex2Discord is a simple Node.JS script that listens for Plex Webhook payloads t
 * Fancy Discord embed messages
 * Detailed error logging
 * Event Support for most [Plex Webhook Events](https://support.plex.tv/articles/115002267687-webhooks/#toc-1):
- * Media.stop
- * Media.pause
- * Media.play
- * Media.scrobble
- * Library.new
+  * Media.stop
+  * Media.pause
+  * Media.play
+  * Media.scrobble
+  * Library.new
 
 ## Upcoming Features
 * Detailed event logging
