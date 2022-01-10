@@ -1,11 +1,38 @@
+const os = require('os');
+const extIP = require("ext-ip")();
+const { token }= require('./config.json');
+const { Client, Intents } = require('discord.js');
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+
+const { webhookport } = require('./config.json');
+const { eventsChannel } = require('./config.json');
+const { newContentChannel } = require('./config.json');
+
+const interfaces = os.networkInterfaces();
+const addresses = [];
+for (var k in interfaces) {
+    for (var k2 in interfaces[k]) {
+        var address = interfaces[k][k2];
+        if (address.family === 'IPv4' && !address.internal) {
+            addresses.push(address.address);
+        }
+    }
+}
+const localip = addresses[0];
+var externalip = "";
+getExternalip();
+function getExternalip(){
+	 extIP.get().then(ip => {
+ 	   let newip = ip;
+	   externalip = newip;
+ })
+};
+
+
+
 // ------ Discord Bot handling point -------- \\
-var Discord = require('discord.js');
-var client = new Discord.Client();
 
-const events = `` // Channel ID here
-const newContent = `` // Channel ID here
-
-client.login(''); //Bot ID here
+client.login(token);
 
 client.once('ready', () => {
 	client.user.setActivity('Sitting Idle');
@@ -14,24 +41,11 @@ client.once('ready', () => {
 
 });
 
-
-client.on('message', msg => {
-  if (msg.content === 'Plex2Discord') {
-    msg.reply('https://github.com/mixerrules/Plex2Discord');
-  }
-	if (msg.content === '?Info') {
-		msg.reply('Plex2Discord is a simple Node.JS script that listens for for Plex webhook payloads then formats and forwards the payload content to a set Discord channel via a bot. https://github.com/mixerrules/Plex2Discord');
-	}
-
-});
-
 // ------ Payload handling point -------- \\
 
 const Busboy = require('busboy');
 const express = require('express');
 const app = new express();
-
-const PORT = 1337 // Change Port here if needed
 
 app.post('/', async function(req, res, next) {
 	const busboy = new Busboy({headers: req.headers});
@@ -238,12 +252,10 @@ app.post('/', async function(req, res, next) {
 });
 
 client.once('ready', () => {
-	app.listen(PORT, () => console.log(`\n========\n- Plex2Discord.Js listening for webhooks on port ${PORT} -\n========`));
+	app.listen(webhookport, () => console.log(`\n========\n- Plex2Discord.Js is now active on the following address: -\n- Local Address: ${localip}:${webhookport} -\n- Extenral Address: ${externalip}:${webhookport} -\n========`));
 });
 
-
-
-// Error Logging Stuff
+// ------ Script Error Handling -------- \\
 
 process.on('unhandledRejection', (reason, p) => {
 
