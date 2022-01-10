@@ -128,7 +128,7 @@ app.post('/', async function(req, res, next) {
 					  "color": 15048717,
 					};
 
-					client.channels.cache.get(`${events}`).send(`Someone has started watching a movie: ${payload.Metadata.title}`,{ embed: movieEmbed }); // Post to events channel
+					client.channels.cache.get(`${eventsChannel}`).send(`Someone has started watching a movie: ${payload.Metadata.title}`,{ embed: movieEmbed }); // Post to events channel
 
 					console.log(`\n========\n[${payload.Account.title}] ${payload.event}: \n= ${payload.Metadata.title}\n========`);
 					client.user.setActivity(`${payload.Metadata.title}`, {type: 'WATCHING'});
@@ -191,7 +191,7 @@ app.post('/', async function(req, res, next) {
 						};
 
 
-					 client.channels.cache.get(`${newContent}`).send(`A new movie has been added to the server! ${payload.Metadata.title}`, { embed: movieEmbed }); // Send to Mixer's Manor
+					 client.channels.cache.get(`${newContentChannel}`).send(`A new movie has been added to the server! ${payload.Metadata.title}`, { embed: movieEmbed }); // Send to Mixer's Manor
 
 					 console.log("lirary.new: new movie has been added/message sent")
 				}
@@ -224,7 +224,7 @@ app.post('/', async function(req, res, next) {
 					  ]
 					};
 
-					client.channels.cache.get(`${newContent}`).send(`a new episode of ${payload.Metadata.grandparentTitle} has been added!`, { embed: episodeEmbed });
+					client.channels.cache.get(`${newContentChannel}`).send(`a new episode of ${payload.Metadata.grandparentTitle} has been added!`, { embed: episodeEmbed });
 
 					console.log("lirary.new: new episode has been added/message sent")
 				}
@@ -266,7 +266,7 @@ process.on('unhandledRejection', (reason, p) => {
 	if (channelCheck == "true"){
     console.log('\n========\nExiting Plex2Discord.JS - Reason: Invalid channel IDs \n========');
 
-		console.log('\n========\nSeem like your put the Invalid channel IDs in the "events" & "newContent" feilds at the top of the file, please check them!\n========\n');
+		console.log('\n========\nSeem like your put the Invalid channel IDs in the "eventsChannel" & "newContentChannel" feilds at the top of the file, please check them!\n========\n');
 
 		process.exit();
 	}
