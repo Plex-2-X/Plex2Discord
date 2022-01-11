@@ -67,8 +67,11 @@ app.post('/', async function(req, res, next) {
 
 	busboy.on('finish', async function() {
 		if (payload) {
+			console.log("====== Payload Info ======")
+			console.log(payload);
+			console.log("====== Payload Info ======")
 
-			// --- check payload.event for scrobble (aka "90% completed") --- \\
+			// --- check payload.event for scrobble (aka "90% completed shows/movies") --- \\
 
 			if (payload.event === 'media.scrobble') {
 
@@ -109,7 +112,7 @@ app.post('/', async function(req, res, next) {
 					  ]
 					};
 
-					client.channels.cache.get(`${events}`).send(`Someone has started watching an episode of ${payload.Metadata.grandparentTitle} (${payload.Metadata.parentTitle}): ${payload.Metadata.title}`, { embed: episodeEmbed });
+					client.channels.cache.get(`${eventsChannel}`).send({ content: `Someone has started watching an episode of ${payload.Metadata.grandparentTitle} (${payload.Metadata.parentTitle}): ${payload.Metadata.title}`, embeds: [episodeEmbed] });
 
 					console.log(`\n========\n${payload.Account.title} is now watching: \n= ${payload.Metadata.grandparentTitle} \n= ${payload.Metadata.parentTitle} \n= ${payload.Metadata.title}\n========`);
 
@@ -128,7 +131,7 @@ app.post('/', async function(req, res, next) {
 					  "color": 15048717,
 					};
 
-					client.channels.cache.get(`${eventsChannel}`).send(`Someone has started watching a movie: ${payload.Metadata.title}`,{ embed: movieEmbed }); // Post to events channel
+					client.channels.cache.get(`${eventsChannel}`).send({ content: `Someone has started watching a movie: ${payload.Metadata.title}`, embeds: [movieEmbed] }); // Post to events channel
 
 					console.log(`\n========\n[${payload.Account.title}] ${payload.event}: \n= ${payload.Metadata.title}\n========`);
 					client.user.setActivity(`${payload.Metadata.title}`, {type: 'WATCHING'});
@@ -166,12 +169,14 @@ app.post('/', async function(req, res, next) {
 				client.user.setStatus('idle');
 			}
 
+			// --- check payload.event for library --- \\
+
 			if (payload.event === 'library.new') {
 				// --- Check library.new for movies --- \\
 
 				if (payload.Metadata.type === 'movie') {
 
-						const movieEmbed = {
+					const movieEmbed = {
 						  "title": `${payload.Metadata.title}`,
 						  "description": `${payload.Metadata.summary}`,
 						  "url": "https://app.plex.tv/desktop",
@@ -190,8 +195,7 @@ app.post('/', async function(req, res, next) {
 						  ]
 						};
 
-
-					 client.channels.cache.get(`${newContentChannel}`).send(`A new movie has been added to the server! ${payload.Metadata.title}`, { embed: movieEmbed }); // Send to Mixer's Manor
+					 client.channels.cache.get(`${newContentChannel}`).send({ content: `A new movie has been added to the server! ${payload.Metadata.title}`, embeds: [movieEmbed] }); // Send to Mixer's Manor
 
 					 console.log("lirary.new: new movie has been added/message sent")
 				}
@@ -224,7 +228,7 @@ app.post('/', async function(req, res, next) {
 					  ]
 					};
 
-					client.channels.cache.get(`${newContentChannel}`).send(`a new episode of ${payload.Metadata.grandparentTitle} has been added!`, { embed: episodeEmbed });
+					client.channels.cache.get(`${newContentChannel}`).send({ content: `A new episode of ${payload.Metadata.grandparentTitle} has been added!`, embeds: [episodeEmbed] });
 
 					console.log("lirary.new: new episode has been added/message sent")
 				}
@@ -232,7 +236,7 @@ app.post('/', async function(req, res, next) {
 				// --- check library.new for tracks --- \\
 
 				if (payload.Metadata.type === 'track') {
-					// Nothing here yet, Decide if you want this later.
+					// Havent started touching this event yet.
 					console.log("lirary.new: new track has been added/message sent")
 				}
 			}
