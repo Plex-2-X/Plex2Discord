@@ -2,7 +2,7 @@ const os = require('os');
 const extIP = require("ext-ip")();
 const { token }= require('./Config.json');
 const { Client, Intents } = require('discord.js');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MESSAGES,Intents.FLAGS.GUILD_PRESENCES] });
 
 const { webhookport } = require('./Config.json');
 const { eventsChannel } = require('./Config.json');
