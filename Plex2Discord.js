@@ -1,13 +1,14 @@
 const os = require('os');
 const extIP = require("ext-ip")();
-const { token }= require('./Config.json');
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageEmbed } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MESSAGES,Intents.FLAGS.GUILD_PRESENCES] });
 
+const { token }= require('./Config.json');
+const { debug } = require('./Config.json');
+const { OMDBApiKey } = require('./Config.json');
 const { webhookport } = require('./Config.json');
 const { eventsChannel } = require('./Config.json');
 const { newContentChannel } = require('./Config.json');
-
 const interfaces = os.networkInterfaces();
 const addresses = [];
 for (var k in interfaces) {
@@ -41,7 +42,7 @@ client.once('ready', () => {
 
 });
 
-// ------ Payload handling point -------- \\
+// ------ Payload/Data handling point -------- \\
 
 const Busboy = require('busboy');
 const express = require('express');
@@ -52,7 +53,7 @@ app.post('/', async function(req, res, next) {
 	let payload = null;
 
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-		file.resume(); // Still trying to figure out how to save poster images but i have a small brain so for now we are gonna skip the file saving.
+		file.resume(); // This is just a catch and continue i guess?, Im gonnna use OMDB's API instead.
 	});
 
 	busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
@@ -67,15 +68,92 @@ app.post('/', async function(req, res, next) {
 
 	busboy.on('finish', async function() {
 		if (payload) {
-			console.log("====== Payload Info ======")
-			console.log(payload);
-			console.log("====== Payload Info ======")
 
-			// --- check payload.event for scrobble (aka "90% completed shows/movies") --- \\
+
+    const episodeEmbed = new MessageEmbed()
+      .setColor('#e5a00d')
+      .setTitle(`${payload.Metadata.grandparentTitle} | ${payload.Metadata.title}`)
+      .setURL('https://app.plex.tv/desktop')
+      .setDescription(`${payload.Metadata.summary}`)
+      .addFields(
+        { name: 'Show:', value: `${payload.Metadata.grandparentTitle}` },
+        { name: 'Season:', value: `${payload.Metadata.parentTitle}` },
+        { name: 'Episode:', value:  `${payload.Metadata.title}` },
+      )
+
+    const movieEmbed = new MessageEmbed()
+        .setColor('#e5a00d')
+        .setTitle(`${payload.Metadata.grandparentTitle} | ${payload.Metadata.title}`)
+        .setURL('https://app.plex.tv/desktop')
+        .setDescription(`${payload.Metadata.summary}`)
+        .addFields(
+          { name: 'Added:', value: `${payload.Metadata.addedAt}`, inline": true },
+          { name: 'Server:', value: `${payload.Server.title}`, inline: true},
+        )
+
+    var thumbnailJson; // Used for saving Poster URL from findThumbnail();
+
+    if (TMDBApiKey !== null)
+      findThumbnail();
+
+      movieEmbed.setThumbnail(`${thumbnailJson}`);
+      episodeEmbed.setThumbnail(`${thumbnailJson}`);
+
+    )
+
+
+    function findThumbnail(){
+
+      const http = require('http');
+
+      let url = `http://www.omdbapi.com/?apikey=${OMDBApiKey}&t=${payload.Metadata.title}`;
+
+      http.get(url,(res) => {
+        let body = "";
+
+        res.on("data", (chunk) => {
+          body += chunk;
+        });
+
+        res.on("end", () => {
+          try {
+              let json = JSON.parse(body);
+
+              if (debug == true){
+        				console.log("\n====== OMDB Api Json Info ======\n")
+        				console.log(json);
+        				console.log("\n====== OMDB Api Json Info ======\n")
+
+        		  };
+
+            thumbnailJson = json.Poster;
+
+            } catch (error) {
+              console.error(error.message);
+            };
+          });
+
+        }).on("error", (error) => {
+          console.error(error.message);
+        });
+
+
+
+    };
+
+
+			if (debug == true){
+				console.log("\n====== Payload Info ======\n")
+				console.log(payload);
+				console.log("\n====== Payload Info ======\n")
+		  };
+
+		// --- check payload.event for scrobble (aka "90% completed shows/movies") --- \\
 
 			if (payload.event === 'media.scrobble') {
 
 				// Add IF statements for detecting types of media
+				// Currently only logging to console
 
 				console.log(`\n========\n${payload.Account.title} finished an episode: \n= ${payload.Metadata.grandparentTitle} \n= ${payload.Metadata.parentTitle} \n= ${payload.Metadata.title}`);
 			}
@@ -88,29 +166,6 @@ app.post('/', async function(req, res, next) {
 
 				if (payload.Metadata.type === 'episode') {
 
-					const episodeEmbed = {
-					  "title": `${payload.Metadata.grandparentTitle} | ${payload.Metadata.title}`,
-					  "description": `${payload.Metadata.summary}`,
-					  "url": "https://app.plex.tv/desktop",
-					  "color": 15048717,
-					  "fields": [
-					    {
-					      "name": "Show:",
-					      "value": `${payload.Metadata.grandparentTitle}`,
-					      "inline": true
-					    },
-					    {
-					      "name": "Season:",
-					      "value": `${payload.Metadata.parentTitle}`,
-					      "inline": true
-					    },
-					    {
-					      "name": "Episode:",
-					      "value": `${payload.Metadata.title}`,
-					      "inline": true
-					    }
-					  ]
-					};
 
 					client.channels.cache.get(`${eventsChannel}`).send({ content: `Someone has started watching an episode of ${payload.Metadata.grandparentTitle} (${payload.Metadata.parentTitle}): ${payload.Metadata.title}`, embeds: [episodeEmbed] });
 
@@ -176,24 +231,6 @@ app.post('/', async function(req, res, next) {
 
 				if (payload.Metadata.type === 'movie') {
 
-					const movieEmbed = {
-						  "title": `${payload.Metadata.title}`,
-						  "description": `${payload.Metadata.summary}`,
-						  "url": "https://app.plex.tv/desktop",
-						  "color": 15048717,
-						  "fields": [
-						    {
-						      "name": "Added:",
-						      "value": `${payload.Metadata.addedAt}`,
-						      "inline": true
-						    },
-								{
-									"name": "Plex Server:",
-									"value": `${payload.Server.title}`,
-									"inline": true
-								}
-						  ]
-						};
 
 					 client.channels.cache.get(`${newContentChannel}`).send({ content: `A new movie has been added to the server! ${payload.Metadata.title}`, embeds: [movieEmbed] }); // Send to Mixer's Manor
 
@@ -203,30 +240,6 @@ app.post('/', async function(req, res, next) {
 				// --- check library.new for episodes --- \\
 
 				if (payload.Metadata.type === 'episode') {
-
-					const episodeEmbed = {
-					  "title": `${payload.Metadata.grandparentTitle} | ${payload.Metadata.title}`,
-					  "description": `${payload.Metadata.summary}`,
-					  "url": "https://app.plex.tv/desktop",
-					  "color": 15048717,
-					  "fields": [
-					    {
-					      "name": "Show:",
-					      "value": `${payload.Metadata.grandparentTitle}`,
-					      "inline": true
-					    },
-					    {
-					      "name": "Season:",
-					      "value": `${payload.Metadata.parentTitle}`,
-					      "inline": true
-					    },
-					    {
-					      "name": "Episode:",
-					      "value": `${payload.Metadata.title}`,
-					      "inline": true
-					    }
-					  ]
-					};
 
 					client.channels.cache.get(`${newContentChannel}`).send({ content: `A new episode of ${payload.Metadata.grandparentTitle} has been added!`, embeds: [episodeEmbed] });
 

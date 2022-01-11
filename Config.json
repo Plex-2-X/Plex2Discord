@@ -1,8 +1,9 @@
 {
-	"token": "-----",
-  "clientId": "-----",
-  "guildId": "-----",
+	"debug": true,
+	"token": "",
+  "clientId": "",
+	"OMDBApiKey": "",
+	"eventsChannel": "",
   "newContentChannel": "",
-  "eventsChannel": "",
   "webhookport": "1337"
 }
