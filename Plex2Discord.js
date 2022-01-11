@@ -87,19 +87,19 @@ app.post('/', async function(req, res, next) {
         .setURL('https://app.plex.tv/desktop')
         .setDescription(`${payload.Metadata.summary}`)
         .addFields(
-          { name: 'Added:', value: `${payload.Metadata.addedAt}`, inline": true },
+          { name: 'Added:', value: `${payload.Metadata.addedAt}`, inline: true },
           { name: 'Server:', value: `${payload.Server.title}`, inline: true},
         )
 
     var thumbnailJson; // Used for saving Poster URL from findThumbnail();
 
-    if (TMDBApiKey !== null)
+    if (TMDBApiKey !== null){
       findThumbnail();
 
       movieEmbed.setThumbnail(`${thumbnailJson}`);
       episodeEmbed.setThumbnail(`${thumbnailJson}`);
 
-    )
+    };
 
 
     function findThumbnail(){
