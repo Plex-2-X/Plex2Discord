@@ -2,7 +2,9 @@
 	"debug": true,
 	"token": "",
   "clientId": "",
+	"guildId": "",
 	"OMDBApiKey": "",
+	"TVDBApiKey": "",
 	"eventsChannel": "",
   "newContentChannel": "",
   "webhookport": "1337"

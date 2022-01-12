@@ -1,14 +1,19 @@
 const os = require('os');
 const extIP = require("ext-ip")();
-const { Client, Intents, MessageEmbed } = require('discord.js');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_PRESENCES] });
+const TVDB = require('node-tvdb');
 
+const { Client, Intents, MessageEmbed } = require('discord.js');
 const { token } = require('./Config.json');
 const { debug } = require('./Config.json');
+const { TVDBApiKey } = require('./Config.json');
 const { OMDBApiKey } = require('./Config.json');
 const { webhookport } = require('./Config.json');
 const { eventsChannel } = require('./Config.json');
 const { newContentChannel } = require('./Config.json');
+
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_PRESENCES] });
+const tvdb = new TVDB(TVDBApiKey);
+
 const interfaces = os.networkInterfaces();
 const addresses = [];
 for (var k in interfaces) {
@@ -70,7 +75,7 @@ app.post('/', async function(req, res, next) {
 
       var thumbnailJson // Used for saving Poster URL from findThumbnail();
 
-      if (OMDBApiKey !== null) {
+      if (TVDBApiKey !== null) {
         findThumbnail();
 
         if (debug == true) {
@@ -78,9 +83,10 @@ app.post('/', async function(req, res, next) {
         }
       };
 
-
       function findThumbnail() {
 
+        // This uses OMDB for grabing the movie thumbnail
+        if(payload.Metadata.type == "movie"){
         const http = require('http');
 
         let url = `http://www.omdbapi.com/?apikey=${OMDBApiKey}&t=${payload.Metadata.title}`;
@@ -97,9 +103,9 @@ app.post('/', async function(req, res, next) {
               let json = JSON.parse(body);
 
               if (debug == true) {
-                console.log("\n====== OMDB Api Json Info ======\n")
+                console.log("\n====== TVDB Api Json Info ======\n")
                 console.log(json);
-                console.log("\n====== OMDB Api Json Info ======\n")
+                console.log("\n====== TVDB Api Json Info ======\n")
 
               };
 
@@ -116,12 +122,16 @@ app.post('/', async function(req, res, next) {
         }).on("error", (error) => {
           console.error(error.message);
         });
+      }
 
-
-
+        // This uses TVDB for grabing the movie thumbnail
+        if(payload.Metadata.type == "episode"){
+          Let SeriesByName = tvdb.getSeriesByName('Breaking Bad');
+          console.log(SeriesByName);
+        }
       };
 
-      var episodeEmbed = new MessageEmbed()
+      const episodeEmbed = new MessageEmbed()
         .setColor('#e5a00d')
         .setTitle(`${payload.Metadata.grandparentTitle} | ${payload.Metadata.title}`)
         .setURL('https://app.plex.tv/desktop')
@@ -154,7 +164,7 @@ app.post('/', async function(req, res, next) {
           inline: true
         }, );
 
-      if (debug == true){ 
+      if (debug == true){
         console.log("\n====== Embed Objects ======\n")
         console.log(movieEmbed);
         console.log('\n')
@@ -189,7 +199,7 @@ app.post('/', async function(req, res, next) {
 
           client.channels.cache.get(`${eventsChannel}`).send({
             content: `Someone has started watching an episode of ${payload.Metadata.grandparentTitle} (${payload.Metadata.parentTitle}): ${payload.Metadata.title}`,
-            embeds: [episodeEmbed]
+            embeds: [ episodeEmbed ]
           });
 
           console.log(`\n========\n${payload.Account.title} is now watching: \n= ${payload.Metadata.grandparentTitle} \n= ${payload.Metadata.parentTitle} \n= ${payload.Metadata.title}\n========`);
@@ -204,16 +214,9 @@ app.post('/', async function(req, res, next) {
 
         if (payload.Metadata.type === 'movie') {
 
-          const movieEmbed = {
-            "title": `${payload.Metadata.title}`,
-            "description": `${payload.Metadata.summary}`,
-            "url": "https://app.plex.tv/desktop",
-            "color": 15048717,
-          };
-
           client.channels.cache.get(`${eventsChannel}`).send({
             content: `Someone has started watching a movie: ${payload.Metadata.title}`,
-            embeds: [movieEmbed]
+            embeds: [ movieEmbed ]
           }); // Post to events channel
 
           console.log(`\n========\n[${payload.Account.title}] ${payload.event}: \n= ${payload.Metadata.title}\n========`);
