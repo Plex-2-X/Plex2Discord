@@ -49,7 +49,7 @@ const express = require('express');
 const app = new express();
 
 app.post('/', async function(req, res, next) {
-	const busboy = new Busboy({headers: req.headers});
+  const busboy = Busboy({ headers: req.headers });
 	let payload = null;
 
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
@@ -99,6 +99,9 @@ app.post('/', async function(req, res, next) {
       movieEmbed.setThumbnail(`${thumbnailJson}`);
       episodeEmbed.setThumbnail(`${thumbnailJson}`);
 
+      if (debug == true){
+        console.log(thumbnailJson);
+      }
     };
 
 
