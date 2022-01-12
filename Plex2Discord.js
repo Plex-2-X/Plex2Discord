@@ -91,9 +91,9 @@ app.post('/', async function(req, res, next) {
           { name: 'Server:', value: `${payload.Server.title}`, inline: true},
         )
 
-    var thumbnailJson; // Used for saving Poster URL from findThumbnail();
+    const thumbnailJson; // Used for saving Poster URL from findThumbnail();
 
-    if (TMDBApiKey !== null){
+    if (OMDBApiKey !== null){
       findThumbnail();
 
       movieEmbed.setThumbnail(`${thumbnailJson}`);
@@ -130,6 +130,9 @@ app.post('/', async function(req, res, next) {
         		  };
 
             thumbnailJson = json.Poster;
+            if (debug == true){
+              console.log(json.Poster);
+            }
 
             } catch (error) {
               console.error(error.message);
