@@ -44,6 +44,66 @@ client.once('ready', () => {
   client.user.setActivity('Sitting Idle');
   client.user.setStatus('idle');
   console.log('\n========\n- Discord.JS Bot Online - \n========');
+
+  const { SlashCommandBuilder } = require('@discordjs/builders');
+  const { REST } = require('@discordjs/rest');
+  const { Routes } = require('discord-api-types/v9');
+
+  const commands = [
+  	new SlashCommandBuilder().setName('creator').setDescription('Responds with infromation about MIXERRULES. '),
+    new SlashCommandBuilder().setName('creator').setDescription('Responds with the Bots current stats.'),
+  	new SlashCommandBuilder().setName('help').setDescription('Replies with info about features and commands'),
+  ]
+  	.map(command => command.toJSON());
+
+  const rest = new REST({ version: '9' }).setToken(token);
+
+  rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+  	.then(() => console.log('Commands Updated'))
+  	.catch(console.error);
+});
+
+client.on('interactionCreate', async interaction => {
+	if (!interaction.isCommand()) return;
+
+  const { commandName } = interaction;
+
+	if (interaction.commandName === 'ping') {
+		await interaction.reply('Pong!');
+		await interaction.followUp('Pong again!');
+
+  } else if (commandName === 'creatorinfo') {
+
+    const mixersInfo = new MessageEmbed()
+    .setTitle("MIXERRULES - Jackson T")
+    .setColor(0x00AE86)
+    .setDescription("\nHi, I'm Jackson or Mixer, I make various scripts written in JavaScript & Node.JS that I publish on my GitHub.\nI also on occasion make YouTube videos and do Twitch streams.")
+
+  const buttons = new MessageActionRow()
+    .addComponents(
+      new MessageButton()
+        .setLabel(`Mixer's Github`)
+        .setURL('https://github.com/mixerrules')
+        .setStyle('LINK'),
+      new MessageButton()
+        .setLabel(`Mixer's Projects Discord`)
+        .setURL('https://discord.gg/mixersworkshop')
+        .setStyle('LINK'),
+      new MessageButton()
+        .setLabel(`Mixer's Website`)
+        .setURL('https://mixerrules.me')
+        .setStyle('LINK'),
+      new MessageButton()
+        .setLabel(`Mixer's Linkden`)
+        .setURL('https://www.linkedin.com/in/jacksontweet/')
+        .setStyle('LINK'),
+    );
+
+    await interaction.reply({ content: 'Creator Info',  embeds: [mixersInfo], components: [buttons] });
+
+ } else {
+  await interaction.reply({ content: `*This command doesnot seem to be Implemented.*`, ephemeral: true });
+}
 });
 
 // ------ Payload/Data handling point -------- \\
@@ -73,7 +133,7 @@ app.post('/', async function(req, res, next) {
   busboy.on('finish', async function() {
     if (payload) {
 
-      var thumbnailJson // Used for saving Poster URL from findThumbnail();
+      var thumbnailJson; // Used for saving Poster URL from findThumbnail();
 
       if (TVDBApiKey !== null) {
         findThumbnail();
@@ -83,7 +143,7 @@ app.post('/', async function(req, res, next) {
         }
       };
 
-      function findThumbnail() {
+      await function findThumbnail() {
 
         // This uses OMDB for grabing the movie thumbnail
         if(payload.Metadata.type == "movie"){
@@ -126,8 +186,8 @@ app.post('/', async function(req, res, next) {
 
         // This uses TVDB for grabing the movie thumbnail
         if(payload.Metadata.type == "episode"){
-          Let SeriesByName = tvdb.getSeriesByName('Breaking Bad');
-          console.log(SeriesByName);
+          Let seriesByName = tvdb.getSeriesByName('Breaking Bad');
+          console.log(seriesByName);
         }
       };
 
