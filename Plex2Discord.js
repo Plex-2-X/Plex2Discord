@@ -133,17 +133,17 @@ app.post('/', async function(req, res, next) {
   busboy.on('finish', async function() {
     if (payload) {
 
-      var thumbnailJson; // Used for saving Poster URL from findThumbnail();
+      var thumbnailJson = []; // Used for saving Poster URL from findThumbnail();
 
       if (TVDBApiKey !== null) {
-        findThumbnail();
+        await findThumbnail();
 
         if (debug == true) {
           console.log(thumbnailJson);
         }
       };
 
-      await function findThumbnail() {
+      function findThumbnail() {
 
         // This uses OMDB for grabing the movie thumbnail
         if(payload.Metadata.type == "movie"){
@@ -169,7 +169,7 @@ app.post('/', async function(req, res, next) {
 
               };
 
-              thumbnailJson = json.Poster;
+              thumbnailJson.fill(`${json.Poster}`, 0, 0)
               if (debug == true) {
                 console.log(json.Poster);
               }
@@ -186,12 +186,13 @@ app.post('/', async function(req, res, next) {
 
         // This uses TVDB for grabing the movie thumbnail
         if(payload.Metadata.type == "episode"){
-          Let seriesByName = tvdb.getSeriesByName('Breaking Bad');
+          Let seriesByName = tvdb.getSeriesByName(`${payload.Metadata.grandparentTitle}`);
           console.log(seriesByName);
+          // thumbnailJson.fill(`${json.Poster}`, 0, 0)
         }
       };
 
-      const episodeEmbed = new MessageEmbed()
+      var episodeEmbed = new MessageEmbed()
         .setColor('#e5a00d')
         .setTitle(`${payload.Metadata.grandparentTitle} | ${payload.Metadata.title}`)
         .setURL('https://app.plex.tv/desktop')
