@@ -1,18 +1,14 @@
 const os = require('os');
 const extIP = require("ext-ip")();
-const TVDB = require('node-tvdb');
 
 const { Client, Intents, MessageEmbed } = require('discord.js');
 const { token } = require('./Config.json');
 const { debug } = require('./Config.json');
-const { TVDBApiKey } = require('./Config.json');
-const { OMDBApiKey } = require('./Config.json');
 const { webhookport } = require('./Config.json');
 const { eventsChannel } = require('./Config.json');
 const { newContentChannel } = require('./Config.json');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_PRESENCES] });
-const tvdb = new TVDB(TVDBApiKey);
 
 const interfaces = os.networkInterfaces();
 const addresses = [];
@@ -42,68 +38,8 @@ client.login(token);
 
 client.once('ready', () => {
   client.user.setActivity('Sitting Idle');
-  client.user.setStatus('idle');
+  client.user.setStatus('online');
   console.log('\n========\n- Discord.JS Bot Online - \n========');
-
-  const { SlashCommandBuilder } = require('@discordjs/builders');
-  const { REST } = require('@discordjs/rest');
-  const { Routes } = require('discord-api-types/v9');
-
-  const commands = [
-  	new SlashCommandBuilder().setName('creator').setDescription('Responds with infromation about MIXERRULES. '),
-    new SlashCommandBuilder().setName('creator').setDescription('Responds with the Bots current stats.'),
-  	new SlashCommandBuilder().setName('help').setDescription('Replies with info about features and commands'),
-  ]
-  	.map(command => command.toJSON());
-
-  const rest = new REST({ version: '9' }).setToken(token);
-
-  rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-  	.then(() => console.log('Commands Updated'))
-  	.catch(console.error);
-});
-
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
-
-  const { commandName } = interaction;
-
-	if (interaction.commandName === 'ping') {
-		await interaction.reply('Pong!');
-		await interaction.followUp('Pong again!');
-
-  } else if (commandName === 'creatorinfo') {
-
-    const mixersInfo = new MessageEmbed()
-    .setTitle("MIXERRULES - Jackson T")
-    .setColor(0x00AE86)
-    .setDescription("\nHi, I'm Jackson or Mixer, I make various scripts written in JavaScript & Node.JS that I publish on my GitHub.\nI also on occasion make YouTube videos and do Twitch streams.")
-
-  const buttons = new MessageActionRow()
-    .addComponents(
-      new MessageButton()
-        .setLabel(`Mixer's Github`)
-        .setURL('https://github.com/mixerrules')
-        .setStyle('LINK'),
-      new MessageButton()
-        .setLabel(`Mixer's Projects Discord`)
-        .setURL('https://discord.gg/mixersworkshop')
-        .setStyle('LINK'),
-      new MessageButton()
-        .setLabel(`Mixer's Website`)
-        .setURL('https://mixerrules.me')
-        .setStyle('LINK'),
-      new MessageButton()
-        .setLabel(`Mixer's Linkden`)
-        .setURL('https://www.linkedin.com/in/jacksontweet/')
-        .setStyle('LINK'),
-    );
-
-    await interaction.reply({ content: 'Creator Info',  embeds: [mixersInfo], components: [buttons] });
-
- } else {
-  await interaction.reply({ content: `*This command doesnot seem to be Implemented.*`, ephemeral: true });
-}
 });
 
 // ------ Payload/Data handling point -------- \\
@@ -117,7 +53,7 @@ app.post('/', async function(req, res, next) {
   let payload = null;
 
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-    file.resume(); // This is just a catch and continue i guess?, Im gonnna use OMDB's API instead.
+    file.resume(); // This is just a catch and continue i guess? idk how to save the files..
   });
 
   busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
@@ -132,65 +68,6 @@ app.post('/', async function(req, res, next) {
 
   busboy.on('finish', async function() {
     if (payload) {
-
-      var thumbnailJson = []; // Used for saving Poster URL from findThumbnail();
-
-      if (TVDBApiKey !== null) {
-        await findThumbnail();
-
-        if (debug == true) {
-          console.log(thumbnailJson);
-        }
-      };
-
-      function findThumbnail() {
-
-        // This uses OMDB for grabing the movie thumbnail
-        if(payload.Metadata.type == "movie"){
-        const http = require('http');
-
-        let url = `http://www.omdbapi.com/?apikey=${OMDBApiKey}&t=${payload.Metadata.title}`;
-
-        http.get(url, (res) => {
-          let body = "";
-
-          res.on("data", (chunk) => {
-            body += chunk;
-          });
-
-          res.on("end", () => {
-            try {
-              let json = JSON.parse(body);
-
-              if (debug == true) {
-                console.log("\n====== TVDB Api Json Info ======\n")
-                console.log(json);
-                console.log("\n====== TVDB Api Json Info ======\n")
-
-              };
-
-              thumbnailJson.fill(`${json.Poster}`, 0, 0)
-              if (debug == true) {
-                console.log(json.Poster);
-              }
-
-            } catch (error) {
-              console.error(error.message);
-            };
-          });
-
-        }).on("error", (error) => {
-          console.error(error.message);
-        });
-      }
-
-        // This uses TVDB for grabing the movie thumbnail
-        if(payload.Metadata.type == "episode"){
-          Let seriesByName = tvdb.getSeriesByName(`${payload.Metadata.grandparentTitle}`);
-          console.log(seriesByName);
-          // thumbnailJson.fill(`${json.Poster}`, 0, 0)
-        }
-      };
 
       var episodeEmbed = new MessageEmbed()
         .setColor('#e5a00d')
@@ -397,6 +274,6 @@ process.on('unhandledRejection', (reason, p) => {
 
     process.exit();
   } else {
-    console.log('\n========\nUNKNOWN ERROR! PLEASE REPORT THIS ON THE GITHUB!!\n========\n\n', reason, '\n\n========\nUNKNOWN ERROR! PLEASE REPORT THIS ON THE GITHUB!!\n========\n\n');
+    console.log('\n========\nUNKNOWN ERROR! PLEASE REPORT THIS ON THE GITHUB!\n========\n\n', reason, '\n\n========\nUNKNOWN ERROR! PLEASE REPORT THIS ON THE GITHUB!!\n========\n\n');
   };
 });

@@ -1,11 +1,9 @@
 {
 	"debug": true,
-	"token": "",
-  "clientId": "",
+	"token": "NDcxODY3MTQ3ODcwNzk3ODI0.GM_Bza.695yVo0fCPUWgi-pjRIUSYYtsZ-7F4Zy_EfY1w",
+	"clientId": "",
 	"guildId": "",
-	"OMDBApiKey": "",
-	"TVDBApiKey": "",
-	"eventsChannel": "",
-  "newContentChannel": "",
-  "webhookport": "1337"
+	"eventsChannel": "https://discord.com/api/webhooks/1022712334852034621/HuSyaHmJdq6iLzJymJGqOgyXtD-TEHTRjxMzYFU9VmdWIjGps51GcPmnmHjNkycHgRdh",
+	"newContentChannel": "https://discord.com/api/webhooks/1022712286525272085/8c5V1AKcpOCophG0BAO7hYfPpFJZXsiBK3-s2O9wA9i_nzSIqp8qTVlSt2sqwphQoCyQ",
+	"webhookport": "1337"
 }
