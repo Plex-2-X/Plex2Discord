@@ -1,9 +1,12 @@
 {
-	"debug": true,
+	"Need Help?": "If you dont know what to change in here re-read the docs! https://plex2discord.info/docs/",
+	"debug": false,
+	"FileEventLogging": false,
+	"ConsoleEventLogging": true,
 	"token": "",
-	"clientId": "",
 	"guildId": "",
+	"clientId": "",
+	"webhookport": "1337",
 	"eventsChannel": "",
-	"newContentChannel": "",
-	"webhookport": "1337"
+	"newContentChannel": ""
 }
